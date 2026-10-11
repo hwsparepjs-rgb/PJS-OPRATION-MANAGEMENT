@@ -195,7 +195,7 @@ export default function ExcelLRWorkspace({records}:{records:any[]}){
   <div className='tr-summary'>
    <div><span className='tr-summary-icon blue'><FileText size={19}/></span><div><strong>{uploaded}</strong><small>Bill files selected</small></div></div>
    <div><span className='tr-summary-icon cyan'><Search size={19}/></span><div><strong>{grouped.length}</strong><small>Unique LR references</small></div></div>
-   <div><span className='tr-summary-icon green'><CheckCircle2 size={19}/></span><div><strong>{matched}</strong><small>Matched to sales</small></div></div>
+   <div><span className='tr-summary-icon green'><CheckCircle2 size={19}/></span><div><strong>{matched}</strong><small>Matched to PJS</small></div></div>
    <div><span className='tr-summary-icon amber'><AlertCircle size={19}/></span><div><strong>{needsReview}</strong><small>LRs needing review</small></div></div>
   </div>
   <div className='tr-section-intro'>
@@ -258,15 +258,19 @@ export default function ExcelLRWorkspace({records}:{records:any[]}){
      const record=records.find(r=>String(r.process)===t.process);
      return <div className='tr-tempo-row' key={t.id}>
       <span><Truck size={17}/></span><div><strong>Process {t.process}</strong><small>{t.date} · {t.notes||'Local tempo delivery'} {t.amount?' · ₹'+t.amount:''}</small></div>
-      <span className={'tr-bill-match '+(record?'matched':'unmatched')}>{record?'Sales matched':'Needs sales match'}</span>
+      <span className={'tr-bill-match '+(record?'matched':'unmatched')}>{record?'PJS linked':'Needs PJS match'}</span>
       <button aria-label={'Remove local trip '+t.process} onClick={()=>setLocalTrips(old=>old.filter(x=>x.id!==t.id))}><Trash2 size={16}/></button>
      </div>;
     })}</div>}
    </>}
   </div>
   <div className='tr-reconcile-heading'>
-   <div><span className='tr-section-label'>02 — SALES RECONCILIATION</span><h2>Match bill LR numbers with sales data</h2><p>Current source: <strong>{records.length} PJS process record(s)</strong>. External Sales Excel mapping comes when you provide your sample format.</p></div>
+   <div><span className='tr-section-label'>02 — SALES RECONCILIATION</span><h2>Match bills with PJS records and sales data</h2><p>Currently connected: <strong>{records.length} PJS process record(s)</strong>. External Sales Excel will be matched after you share its column format.</p></div>
    <div className='tr-data-source'><ShieldCheck size={15}/><span>PJS Data Store connected</span></div>
+  </div>
+  <div className='tr-data-inputs'>
+   <div><span className='tr-input-icon'><ShieldCheck size={19}/></span><div><strong>PJS process register</strong><small>{records.length} cloud process record(s) available for exact LR matching</small></div><span className='tr-input-state connected'>Connected</span></div>
+   <div><span className='tr-input-icon later'><FileSpreadsheet size={19}/></span><div><strong>External sales workbook</strong><small>Column mapping will follow your sales sample and Excel format</small></div><span className='tr-input-state later'>Format pending</span></div>
   </div>
   <div className='tr-results'>
    <div className='tr-result-toolbar'>
