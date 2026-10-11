@@ -20,4 +20,14 @@ assert.equal(checkJob(p,'delivery_proof_submit').ready,true);
 assert.equal(canCloseProcess(p,jobs).ready,true);
 assert.equal(canCloseProcess({...p,exceptionReason:'Address issue'},jobs).ready,false);
 assert.equal(canCloseProcess(p,[]).ready,false);
+
+// The Windows DataDoc adapter requires a verified E-Invoice PDF even when
+// an E-Way Bill is attached, and needs E-Way only ABOVE the threshold.
+assert.equal(checkBill({...p,amount:'25000',documents:p.documents.filter(d=>d.kind!=='einvoiceDoc')}).ready,false);
+assert.ok(checkBill({...p,amount:'25000',documents:p.documents.filter(d=>d.kind!=='einvoiceDoc')}).missing.includes('E-Invoice PDF'));
+assert.equal(checkBill({...p,amount:'50000',documents:p.documents.filter(d=>d.kind!=='ebillDoc')}).ready,true);
+assert.equal(checkBill({...p,amount:'50001',documents:p.documents.filter(d=>d.kind!=='ebillDoc')}).ready,false);
+assert.equal(checkBill({...p,amount:'0'}).ready,false);
+console.log('PASS: 5 DataDoc office-worker readiness edge cases');
+
 console.log('PASS: 15 business readiness and closure tests');
