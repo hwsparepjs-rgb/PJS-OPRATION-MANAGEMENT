@@ -1,8 +1,8 @@
 import {useEffect,useState} from 'react';
 import {
   Activity,AlertTriangle,ArrowRight,Bell,Camera,CheckCircle2,ClipboardCheck,Clock3,
-  Database,DatabaseBackup,Download,FileSearch,HardDrive,LayoutDashboard,
-  LockKeyhole,Palette,Save,ScanText,Server,ShieldCheck,Truck,Users,Workflow
+  Database,DatabaseBackup,Download,LayoutDashboard,
+  Palette,Save,ScanText,Server,ShieldCheck,Truck,Users,Workflow
 } from 'lucide-react';
 import {Button,Heading} from './UnifiedKit';
 import TeamWorkspace from './TeamWorkspace';
