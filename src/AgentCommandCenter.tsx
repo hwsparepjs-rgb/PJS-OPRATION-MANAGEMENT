@@ -5,13 +5,15 @@ import {
  MessageCircle,Plus,RefreshCw,Search,SendHorizontal,ShieldCheck,Sparkles,Trash2
 } from 'lucide-react';
 import {agentApi,type AgentMessage,type AgentNotification,type AgentTask} from './agentApi';
+import {cloudJobsApi} from './cloudJobsApi';
+import CloudAutomationPanel from './CloudAutomationPanel';
 import {parseCommand,formatLocalDue} from './agentCommands';
 import {missingDocs} from './unifiedOps';
 import './agent-command-center.css';
 
 type PendingMove={record:any;stage:'Email to Client'|'Dispatch Tracking'};
 const suggestions=[
- 'Show my pending tasks','Summarize my operations',
+ 'Show my pending tasks','Audit process 292168',
  'Find process 292168','Remind me to follow up tomorrow at 9am',
  'Search web for latest logistics updates'
 ];
@@ -41,6 +43,7 @@ export default function AgentCommandCenter({
  const [pendingMove,setPendingMove]=useState<PendingMove|null>(null);
  const [selectedRecord,setSelectedRecord]=useState<any|null>(null);
  const [showTaskForm,setShowTaskForm]=useState(false);
+ const [cloudRefreshKey,setCloudRefreshKey]=useState(0);
  const [localNotice,setLocalNotice]=useState('');
  const conversationEnd=useRef<HTMLDivElement|null>(null);
  const textarea=useRef<HTMLTextAreaElement|null>(null);
@@ -94,7 +97,7 @@ export default function AgentCommandCenter({
   const currentRecords=recordsRef.current;
   const pendingNow=available.filter(x=>x.status==='pending');
   if(cmd.kind==='help')return {source:'local',reply:
-   'Commands I can execute now:\n• Create task Follow up Process 292168\n• Remind me to call customer tomorrow at 9am\n• Remind me to review Process 292168 in 2 hours\n• Show my pending tasks / Show overdue tasks\n• Complete task 1\n• Find process 292168\n• Summarize my operations\n• Move process 292168 to Email (requires your confirmation)\n• Search web for freight news (requires AI web search key)\n\nI do not send emails or execute DataDoc/courier jobs while the office worker is offline.'};
+   'Commands I can execute now:\n• Create task Follow up Process 292168\n• Remind me to call customer tomorrow at 9am\n• Remind me to review Process 292168 in 2 hours\n• Show my pending tasks / Show overdue tasks\n• Complete task 1\n• Find process 292168\n• Summarize my operations\n• Audit process 292168 (cloud read-only job)\n• Extract PDF for process 292168 (cloud job)\n• Show cloud jobs\n• Move process 292168 to Email (requires your confirmation)\n• Search web for freight news (requires AI web search key)\n\nI do not send emails or execute DataDoc/courier jobs while the office worker is offline.'};
   if(!authenticated&&['create_task','remind_task','complete_task'].includes(cmd.kind))throw Error('Sign in to save tasks and reminders privately.');
   if(cmd.kind==='create_task'){
    const t=await agentApi.createTask(cmd.title,cmd.processNo);
@@ -137,6 +140,21 @@ export default function AgentCommandCenter({
    if(!r)return {source:'local',reply:'Process '+cmd.processNo+' was not found in your accessible records, so no change was made.'};
    setPendingMove({record:r,stage:cmd.stage});
    return {source:'local',reply:'Ready to move Process '+cmd.processNo+' ('+(r.party||'Unknown party')+') from '+(r.stage||'Universal Process')+' to '+cmd.stage+'.\n\nPlease review the confirmation card before I make this change. I have not changed the process yet.'};
+  }
+  if(cmd.kind==='cloud_list'){
+   if(!authenticated)throw Error('Sign in to view saved cloud jobs.');
+   const recent=await cloudJobsApi.jobs();
+   if(!recent.length)return {source:'local',reply:'No cloud automation jobs yet. You can queue "audit process 292168" to start a read-only check.'};
+   return {source:'local',reply:'Recent cloud jobs:\n'+recent.slice(0,12).map(j=>'• Process '+j.process_no+' · '+j.job_type.replaceAll('_',' ')+' · '+j.status).join('\n')+'\n\nOpen the Cloud Automation panel to inspect individual results.'};
+  }
+  if(cmd.kind==='cloud_audit'||cmd.kind==='cloud_extract'){
+   if(!authenticated)throw Error('Sign in to submit cloud automation jobs.');
+   const record=currentRecords.find(r=>String(r.process)===cmd.processNo);
+   if(!record)throw Error('Process '+cmd.processNo+' is not in your currently loaded, authorized workspace.');
+   const kind=cmd.kind==='cloud_audit'?'process_audit':'document_extract';
+   const job=await cloudJobsApi.queue(record,kind);
+   setCloudRefreshKey(x=>x+1);
+   return {source:'local',reply:(kind==='process_audit'?'Read-only process audit':'Read-only PDF field extraction')+' queued for Process '+job.process_no+'. This request is saved to Supabase. It will execute after Google Cloud Run is deployed and its scheduled job is active. No original records will be changed.\n\nOpen Cloud Automation to view status and results.'};
   }
   if(cmd.kind==='summarize'){
    const stages:Record<string,number>={};
@@ -245,6 +263,7 @@ export default function AgentCommandCenter({
    <div><Bell size={18}/><strong>{unread.length}</strong><span>Unread alerts</span></div>
    <div><FileSearch size={18}/><strong>{records.length}</strong><span>Loaded processes</span></div>
   </div>
+  <CloudAutomationPanel records={records} authenticated={authenticated} refreshKey={cloudRefreshKey}/>
   <div className='ac-layout'>
    <div className='ac-chat'>
     <header className='ac-chat-header'>
