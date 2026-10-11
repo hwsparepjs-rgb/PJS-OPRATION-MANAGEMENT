@@ -85,7 +85,7 @@ export default function SettingsControlCenter({p}:{p:any}){
     <div className='sc-layout'>
       <nav aria-label='Settings sections' className='sc-navigation'>
         <div className='sc-nav-label'>WORKSPACE SETTINGS</div>
-        {tabs.map(({id,label,icon:Icon})=><button key={id} className={'sc-nav-link '+(tab===id?'selected':'')} onClick={()=>switchTab(id)} aria-current={tab===id?'page':undefined}><Icon size={16}/><span>{label}</span>{id==='dispatch'&&<span className='sc-nav-dot'/></button>)}
+        {tabs.map(({id,label,icon:Icon})=><button key={id} className={'sc-nav-link '+(tab===id?'selected':'')} onClick={()=>switchTab(id)} aria-current={tab===id?'page':undefined}><Icon size={16}/><span>{label}</span>{id==='dispatch'&&<span className='sc-nav-dot'/>}</button>)}
       </nav>
       <div className='sc-main'>
         {tab==='overview'&&<>
