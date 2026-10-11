@@ -35,8 +35,8 @@ function Result({job}:{job:CloudJob}){
  </div>;
 }
 
-export default function CloudAutomationPanel({records,authenticated}:{
- records:any[];authenticated:boolean;
+export default function CloudAutomationPanel({records,authenticated,refreshKey=0}:{
+ records:any[];authenticated:boolean;refreshKey?:number;
 }){
  const [jobs,setJobs]=useState<CloudJob[]>([]);
  const [workers,setWorkers]=useState<CloudWorker[]>([]);
@@ -47,6 +47,7 @@ export default function CloudAutomationPanel({records,authenticated}:{
  const [notice,setNotice]=useState('');
  const [expanded,setExpanded]=useState(false);
  const [openJob,setOpenJob]=useState<string|null>(null);
+ useEffect(()=>{if(authenticated&&refreshKey>0)void refresh()},[authenticated,refreshKey]);
  const activeProcess=useMemo(()=>records.find(r=>String(r.process)===processNo.trim()),[records,processNo]);
  const newest=workers[0]||null;
  const online=Boolean(newest&&Date.now()-new Date(newest.last_seen_at).getTime()<20*60000);
