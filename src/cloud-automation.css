@@ -1,0 +1,62 @@
+.ca-panel{background:white;border:1px solid #dbe6f5;border-radius:15px;box-shadow:0 5px 20px #153c7407;margin:0 0 19px;overflow:hidden}
+.ca-head{display:flex;align-items:center;gap:13px;padding:17px 18px}
+.ca-head-icon{height:43px;width:43px;display:grid;place-items:center;flex-shrink:0;background:#edf3ff;color:#4b76db;border-radius:12px}
+.ca-head-text{flex:1;min-width:0}.ca-eyebrow{font-size:9px;letter-spacing:.13em;font-weight:900;color:#6685bc}
+.ca-head h2{font-size:16px;color:#28476f;font-weight:900;line-height:1.4;margin:5px 0}
+.ca-head p{font-size:10px;color:#90a2b7;line-height:1.6;margin:0}
+.ca-label{background:#e9f6f1;color:#228960;padding:4px 7px;margin-left:5px;border-radius:6px;font-size:9px;vertical-align:middle;font-weight:850}
+.ca-expand{display:flex;align-items:center;gap:7px;background:#4875e5;color:white;border:0;border-radius:9px;padding:10px 12px;font-size:10px;font-weight:850;cursor:pointer;white-space:nowrap}
+.ca-overview{border-top:1px solid #e8eef6;display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fbfcff;color:#8397b1;font-size:10px;font-weight:750;flex-wrap:wrap}
+.ca-overview>span:not(:first-child){border-left:1px solid #dce5f2;padding-left:11px}
+.ca-overview>button{margin-left:auto;display:grid;place-items:center;cursor:pointer;background:transparent;color:#7d95b5;border:0;padding:7px}
+.ca-overview>button:disabled{opacity:.4}
+.ca-indicator{display:flex;gap:6px;align-items:center;border-radius:10px;padding:6px 9px;font-size:10px;font-weight:900}
+.ca-indicator.disconnected{color:#aa7e42;background:#fff5e7}
+.ca-indicator.connected{color:#23885e;background:#e6f6ec}
+.ca-expanded{border-top:1px solid #e7edf7;padding:17px;display:grid;gap:13px}
+.ca-form{display:flex;align-items:end;gap:13px;flex-wrap:wrap}
+.ca-form>div:first-child{display:grid;gap:4px;flex:1;min-width:150px}
+.ca-form>div:first-child strong,.ca-joblist-head strong{font-size:12px;color:#395879}
+.ca-form>div:first-child small{font-size:10px;color:#94a5bb;line-height:1.6}
+.ca-form>label{display:grid;gap:5px;font-size:10px;font-weight:850;color:#66809e}
+.ca-form input{border:1px solid #d7e3f4;border-radius:8px;font:12px inherit;padding:10px 11px;min-width:145px;max-width:200px}
+.ca-form input:focus{outline:2px solid #88abeb}
+.ca-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ca-actions button{display:inline-flex;align-items:center;gap:6px;border:1px solid #bcd5f8;border-radius:8px;background:#f0f6ff;color:#3c70ac;font-size:10px;font-weight:850;padding:10px 11px;cursor:pointer}
+.ca-actions button:first-child{background:#496fea;border-color:#496fea;color:white}
+.ca-actions button:disabled{opacity:.45;cursor:not-allowed}
+.ca-notice,.ca-error{font-size:10px;line-height:1.7;border-radius:8px;padding:10px 12px;margin:0}
+.ca-notice{background:#eaf8f1;border:1px solid #c8ead6;color:#26805d}
+.ca-error,.ca-failure{background:#fff2f0;border:1px solid #f5d7d2;color:#af6061}
+.ca-joblist-head{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid #eaf0f9;padding-top:14px}
+.ca-joblist-head small{font-size:10px;color:#a0aec1}
+.ca-job{border:1px solid #e2ebf6;border-radius:9px;overflow:hidden}
+.ca-job-summary{display:flex;align-items:center;gap:10px;width:100%;border:0;background:#fff;padding:10px 12px;text-align:left;cursor:pointer;color:#8ba1bb}
+.ca-job-type{display:flex;align-items:center;gap:8px;flex:1;min-width:0}.ca-job-type>svg{color:#6c8bc6;flex-shrink:0}
+.ca-job-type>div{display:grid;gap:4px;min-width:0}.ca-job-type strong{color:#446281;font-size:10px}
+.ca-job-type small{color:#99a8bb;font-size:9px}
+.ca-job-status{font-size:9px;font-weight:900;padding:6px 8px;border-radius:7px;white-space:nowrap}
+.ca-job-status.queued{background:#eaf1ff;color:#5c7baf}
+.ca-job-status.running{background:#e6f3ff;color:#3a8dba}
+.ca-job-status.completed{background:#e9f8ef;color:#24915e}
+.ca-job-status.failed{background:#fff0ec;color:#b96358}
+.ca-job-status.cancelled{background:#f4f4f4;color:#91969f}
+.ca-result{padding:12px 13px;border-top:1px solid #eaf0f6;display:grid;gap:9px;background:#fafcff}
+.ca-result>small{font-size:10px;color:#899fb9;line-height:1.6}
+.ca-result-figures{display:flex;gap:8px;flex-wrap:wrap;color:#7790ae;font-size:10px}
+.ca-result-figures>span{border:1px solid #dce7f5;border-radius:7px;background:white;padding:7px}
+.ca-readiness{font-size:10px;font-weight:900;padding:7px 10px;border-radius:7px;justify-self:start}
+.ca-readiness.ready{color:#26845a;background:#e7f8ee}.ca-readiness.needs{color:#a36c3e;background:#fff1e3}
+.ca-result-warning{font-size:10px;line-height:1.7;padding:10px 12px;border-radius:8px;color:#af7347;background:#fff4e7;border:1px solid #f5e0c5}
+.ca-failure{padding:11px 12px;font-size:10px;line-height:1.7}
+.ca-pending-message{padding:13px 14px;font-size:10px;color:#7390b2;line-height:1.7;margin:0}
+.ca-document{display:flex;align-items:center;gap:8px;color:#557491;background:white;border:1px solid #e6edf5;border-radius:7px;padding:9px;font-size:10px;flex-wrap:wrap}
+.ca-document svg{color:#5f87c0}.ca-document span{flex:1;overflow-wrap:anywhere}.ca-document small{color:#9cacbd}
+.ca-suggestions{display:grid;gap:7px}.ca-suggestions>strong{font-size:11px;color:#42648a}
+.ca-suggestions>div{display:flex;gap:11px;align-items:center;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid #edf2f8;font-size:10px}
+.ca-suggestions>div span{color:#7f92ad;min-width:115px}
+.ca-suggestions>div b{color:#355978;overflow-wrap:anywhere}
+.ca-empty{padding:13px;background:#f7faff;border:1px dashed #d8e6f6;color:#91a7c0;font-size:10px;line-height:1.7;border-radius:9px}
+.ca-safety{display:flex;align-items:flex-start;gap:9px;border-radius:9px;background:#f4f8ff;border:1px solid #e0eaf8;padding:11px;color:#8294ad;font-size:10px;line-height:1.7}
+.ca-safety svg{flex-shrink:0;color:#6b89bd;margin-top:2px}
+@media(max-width:700px){.ca-head{align-items:flex-start;padding:14px;flex-wrap:wrap}.ca-head-icon{width:37px;height:37px}.ca-head-text{flex-basis:calc(100% - 55px)}.ca-expand{margin-left:50px}.ca-expanded{padding:12px}.ca-form{align-items:stretch}.ca-form>div:first-child{flex-basis:100%}.ca-form>label input{width:100%;max-width:none}.ca-actions{width:100%}.ca-actions button{flex:1;justify-content:center}}
