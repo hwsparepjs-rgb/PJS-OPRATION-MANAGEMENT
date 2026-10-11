@@ -7,6 +7,9 @@ export type Command=
  |{kind:'complete_task';index:number}
  |{kind:'find_process';processNo:string}
  |{kind:'move_process';processNo:string;stage:'Email to Client'|'Dispatch Tracking'}
+ |{kind:'cloud_audit';processNo:string}
+ |{kind:'cloud_extract';processNo:string}
+ |{kind:'cloud_list'}
  |{kind:'summarize'}
  |{kind:'web_search';query:string}
  |{kind:'open_site';url:string}
@@ -82,6 +85,11 @@ export function parseCommand(raw:string,now=new Date()):Command{
    ?{kind:'remind_task',title,processNo:extractProcessNumber(title),at:when.toISOString()}
    :{kind:'ask_reminder_time',title};
  }
+ const audit=text.match(/^(?:audit|analy[sz]e|review|check\s+completeness\s+(?:of\s+)?)\s*(?:my\s+)?process\s+(\d{5,9})\s*[.!]?$/i);
+ if(audit&&validProcess(audit[1]))return {kind:'cloud_audit',processNo:audit[1]};
+ const pdf=text.match(/^(?:extract|scan|read)\s+(?:(?:pdf|documents?|invoice(?:\s+pdf)?|pdf\s+details?)\s+)?(?:for\s+|from\s+|of\s+)?process\s+(\d{5,9})\s*[.!]?$/i);
+ if(pdf&&validProcess(pdf[1]))return {kind:'cloud_extract',processNo:pdf[1]};
+ if(/^(?:show|list|check)\s+(?:my\s+)?(?:cloud\s+jobs|cloud\s+automations?|background\s+jobs)\s*[.!]?$/i.test(text))return {kind:'cloud_list'};
  const move=text.match(/^(?:please\s+)?(?:move|send|transfer)\s+process\s+(\d{5,9})\s+to\s+(email(?:\s+to\s+client)?|dispatch\s+tracking)\s*[.!]?$/i);
  if(move&&validProcess(move[1]))return {kind:'move_process',processNo:move[1],stage:/email/i.test(move[2])?'Email to Client':'Dispatch Tracking'};
  const process=text.match(/\b(?:process|prc|process\s*no\.?)\s*(?:number|no\.?|#|:|-)?\s*(\d{5,9})\b/i);
