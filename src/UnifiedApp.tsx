@@ -4,6 +4,7 @@ import {supabase} from './independentClient';
 import {cloud} from './cloud';
 import {ops,mockRecords,saveDemo,missingDocs,isException,defaults,type Job,type AuditEvent,type JobType,type Preferences} from './unifiedOps';
 import {teamsApi} from './teamOps';
+import {agentApi} from './agentApi';
 import {canCloseProcess} from './businessRules';
 import UnifiedDialog,{blankProcess} from './UnifiedDialog';
 import UnifiedLogin from './UnifiedLogin';
@@ -24,6 +25,8 @@ export default function UnifiedApp(){
  const [busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
  const [search,setSearch]=useState(''),[dialog,setDialog]=useState(false),[record,setRecord]=useState<any>(null),[pickFile,setPickFile]=useState<File|null>(null);
  const [donePickOpen,setDonePickOpen]=useState(false);
+ const [agentUnread,setAgentUnread]=useState(0);
+ const notifiedIds=useRef<Set<string>>(new Set());
  const [activeTeam,setActiveTeam]=useState('');
  const [importIssue,setImportIssue]=useState('');
  const picker=useRef<HTMLInputElement>(null);
@@ -48,6 +51,29 @@ export default function UnifiedApp(){
    void teamsApi.list().then(t=>{if(alive&&t.length===1&&t[0].role!=='viewer')setActiveTeam(t[0].team_id)}).catch(()=>{});
    return()=>{alive=false};
  },[user?.id]);
+ useEffect(()=>{
+  if(!user||demo){setAgentUnread(0);notifiedIds.current.clear();return}
+  let active=true;let initialized=false;
+  async function poll(){
+   try{
+    const events=await agentApi.notifications();
+    if(!active)return;
+    setAgentUnread(events.filter(e=>!e.read_at).length);
+    if(initialized&&typeof Notification!=='undefined'&&Notification.permission==='granted'){
+     // Only notify for newly delivered reminders; initial unread events
+     // are visible through the bell but do not cause an alert storm.
+     for(const event of events.filter(e=>!e.read_at&&!notifiedIds.current.has(e.id)).slice(0,4)){
+      try{new Notification(event.title,{body:event.body,tag:'pjs-oms-'+event.id})}catch{}
+     }
+    }
+    notifiedIds.current=new Set(events.map(x=>x.id));
+    initialized=true;
+   }catch{}
+  }
+  void poll();
+  const interval=setInterval(()=>void poll(),45000);
+  return()=>{active=false;clearInterval(interval)};
+ },[user?.id,demo]);
  const results=useMemo(()=>records.filter(r=>[r.process,r.party,r.so,r.invoice,r.transporter,r.lr,r.stage,r.status].some(v=>includes(v,search))),[records,search]);
  const stats=useMemo(()=>({total:records.length,complete:records.filter(r=>String(r.stage||'').toLowerCase()==='complete').length,pending:records.filter(r=>missingDocs(r).length>0).length,exceptions:new Set([...records.filter(isException).map(r=>r.id),...exceptions.filter(x=>x.status!=='resolved').map(x=>x.process_id)]).size}),[records,exceptions]);
  const authenticated=Boolean(user&&!demo);
@@ -156,6 +182,16 @@ export default function UnifiedApp(){
   if(!remaining.length){await ops.save({...r,exceptionReason:''},'Exception reason cleared after resolution');}
   await refresh();onNotice('Resolution saved. Process stage is unchanged until you explicitly move it.');
  }
+ async function onAgentMove(r:any,stage:'Email to Client'|'Dispatch Tracking'){
+  if(!authenticated)throw Error('Sign in before modifying a cloud process.');
+  if(!records.some(x=>x.id===r.id))throw Error('Process is no longer in your accessible workspace.');
+  if(stage==='Dispatch Tracking'&&exceptions.some(x=>x.process_id===r.id&&x.status!=='resolved')){
+   throw Error('Resolve the open Check List exceptions before moving this process to tracking.');
+  }
+  await ops.stage(r,stage,stage==='Email to Client'?'Ready for Email':'Pending');
+  await refresh();
+  onNotice('Process '+r.process+' moved to '+stage+'. No email or office automation was executed.');
+ }
  async function onQueue(r:any,type:JobType){
   if(!authenticated){onNotice('Automation jobs require an authenticated cloud account. Local workspace cannot run or queue jobs.');return}
   setBusy(true);try{await ops.queue(r,type,jobs,settings);await refresh();onNotice('Job queued. Python worker not yet connected; no DataDoc, courier or Outlook action has run.')}
@@ -174,8 +210,8 @@ export default function UnifiedApp(){
  async function onSignOut(){if(user&&supabase)await supabase.auth.signOut();setDemo(false);setUser(null);setRecords([]);setActiveTeam('');setPage('Control Tower');setError('')}
  if(checking)return <div className='ux-loading'><span/><b>Loading PJS Operations…</b></div>;
  if(!user&&!demo)return <UnifiedLogin onDemo={()=>{setDemo(true);setPage('Control Tower')}}/>;
- const p={records,trashedProcesses,onRestoreProcess,results,stats,authenticated,onOpenDonePickOCR:()=>setDonePickOpen(true),jobs,events,exceptions,onReportException,onResolveException,settings,setSettings,busy,demo,userId:user?.id||'',activeTeam,onTeamSelect:setActiveTeam,onRefresh:refresh,search,setSearch,onEdit,onImport:()=>picker.current?.click(),onDonePick:()=>onGoto('Done Pick List'),onNew,onExport,onGoto,onStage,onQueue,onAttach,onDraftEmail,onError:setError,onNotice};
- return <UnifiedShell page={page} onPage={onGoto} onRefresh={()=>void refresh()} onSignOut={()=>void onSignOut()} demo={demo} user={user} stats={stats} busy={busy}>
+ const p={records,trashedProcesses,onRestoreProcess,results,stats,authenticated,onAgentMove,onOpenDonePickOCR:()=>setDonePickOpen(true),jobs,events,exceptions,onReportException,onResolveException,settings,setSettings,busy,demo,userId:user?.id||'',activeTeam,onTeamSelect:setActiveTeam,onRefresh:refresh,search,setSearch,onEdit,onImport:()=>picker.current?.click(),onDonePick:()=>onGoto('Done Pick List'),onNew,onExport,onGoto,onStage,onQueue,onAttach,onDraftEmail,onError:setError,onNotice};
+ return <UnifiedShell page={page} onPage={onGoto} onRefresh={()=>void refresh()} onSignOut={()=>void onSignOut()} demo={demo} user={user} stats={stats} notificationCount={agentUnread} busy={busy}>
   {error&&<div className='ux-alert error' role='alert'><AlertCircle size={18}/><span>{error}</span><button onClick={()=>setError('')}><X size={15}/></button></div>}
   {notice&&<div className='ux-alert info' role='status'><CheckCircle2 size={18}/><span>{notice}</span><button onClick={()=>setNotice('')}><X size={15}/></button></div>}
   {(['Control Tower','Data Store','Universal Process'] as Section[]).includes(page)?<UnifiedCorePages page={page} p={p}/>:<><UnifiedStagePagesA page={page} p={p}/><UnifiedStagePagesB page={page} p={p}/></>}
