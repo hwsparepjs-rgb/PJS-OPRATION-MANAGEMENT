@@ -1,4 +1,6 @@
-# PJS Operations — PC-independent Cloud Run worker
+# PJS Operations — PC-independent Cloud Run worker (optional)
+
+> **Free-first option is now available.** If you do not want to enable Google Cloud billing, **do not follow the Cloud Run steps below**. Use [FREE_PYTHON_AUTOMATION_SETUP.md](FREE_PYTHON_AUTOMATION_SETUP.md) to run the same safe Python worker on GitHub Actions standard runners instead. No Google Cloud project is necessary.
 
 **Architecture:** Vercel React site → authenticated independent Supabase → \`oms_cloud_jobs\` → Google Cloud Run Job → read-only results and in-app notifications.
 
