@@ -12,10 +12,10 @@ export function checkBill(r:any,threshold=50000):Rules{
  if(!text(r.invoice))missing.push('Invoice No.');
  if(!['Credit','Non Credit'].includes(text(r.credit)))missing.push('Credit Type');
  if(!files.has('invoiceDoc'))missing.push('Invoice PDF');
- if(!files.has('einvoiceDoc')&&!files.has('ebillDoc'))missing.push('E-Invoice or E-Way Bill PDF');
+ if(!files.has('einvoiceDoc'))missing.push('E-Invoice PDF');
  const amount=amountValue(r.amount);
- if(amount===null)missing.push('Invoice amount');
- if(amount!==null&&amount>=threshold&&!files.has('ebillDoc'))missing.push('E-Way Bill PDF required by amount threshold');
+ if(amount===null||amount<=0)missing.push('Positive invoice amount');
+ if(amount!==null&&amount>threshold&&!files.has('ebillDoc'))missing.push('E-Way Bill PDF required for amount above threshold');
  if(!files.has('donePickDoc'))warnings.push('Done Pick List not yet attached');
  return {ready:!missing.length,missing,warnings};
 }
