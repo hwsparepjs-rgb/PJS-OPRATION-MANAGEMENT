@@ -11,4 +11,12 @@ assert.equal(workbook.getWorksheet('LR Review').getCell('B3').value,'UNMATCHED')
 assert.equal(workbook.getWorksheet('Process Register').getCell('A2').value,'292184');
 const bytes=await workbook.xlsx.writeBuffer();
 assert.ok(bytes.byteLength>2500,'Workbook should be a valid nonempty .xlsx');
+const sourceAnnotated=await buildLRWorkbook(rows,records,'Transport Review Draft',{
+ LR45678:'TCI · TCI_Bill_October.pdf',
+ UNKNOWN98765:'V Express · VExpress_Bill_October.pdf'
+});
+assert.equal(sourceAnnotated.getWorksheet('LR Review').getCell('I2').value,'TCI · TCI_Bill_October.pdf');
+assert.equal(sourceAnnotated.getWorksheet('LR Review').getCell('I3').value,'V Express · VExpress_Bill_October.pdf');
+assert.equal(sourceAnnotated.getWorksheet('Summary').getCell('B3').value,'Transport Review Draft');
+console.log('PASS: carrier and original source PDF preserved per LR in draft Excel review');
 console.log('PASS: Excel workbook sheets, matches and xlsx output');
