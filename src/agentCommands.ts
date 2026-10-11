@@ -86,7 +86,7 @@ export function parseCommand(raw:string,now=new Date()):Command{
  if(move&&validProcess(move[1]))return {kind:'move_process',processNo:move[1],stage:/email/i.test(move[2])?'Email to Client':'Dispatch Tracking'};
  const process=text.match(/\b(?:process|prc|process\s*no\.?)\s*(?:number|no\.?|#|:|-)?\s*(\d{5,9})\b/i);
  if(process&&validProcess(process[1])&&/^(?:find|check|show|locate|status|what|where|open|lookup|search)\b/i.test(text))return {kind:'find_process',processNo:process[1]};
- if(/(?:status|summary|overview|how many)\b/i.test(low)&&/(?:records|processes|operations|dispatch|orders|workspace)/.test(low))return {kind:'summarize'};
+ if(/(?:status|summary|summarize|overview|how many)\b/i.test(low)&&/(?:records|processes|operations|dispatch|orders|workspace)/.test(low))return {kind:'summarize'};
  if(/^(?:list|show|find)\s+(?:my\s+)?(?:processes|records)\b/i.test(text))return {kind:'summarize'};
  return {kind:'ai_chat',question:text};
 }
