@@ -8,7 +8,7 @@ const time=(input:string)=>new Date(input).toLocaleString('en-IN',{day:'2-digit'
 function Result({job}:{job:CloudJob}){
  const result=job.result||{};
  if(job.status==='failed')return <div className='ca-failure'>{job.error_message||'Cloud worker failed. Check the document and retry with a new job after review.'}</div>;
- if(job.status!=='completed')return <p className='ca-pending-message'>{job.status==='queued'?'Waiting for a scheduled Cloud Run worker execution. No PC is required once Cloud Run has been connected.':'Worker is processing this request.'}</p>;
+ if(job.status!=='completed')return <p className='ca-pending-message'>{job.status==='queued'?'Waiting for a scheduled free GitHub Actions worker. No PC is needed once it is enabled.':'Worker is processing this request.'}</p>;
  if(job.job_type==='process_audit'){
   const missing=Array.isArray(result.bill_missing)?result.bill_missing:[];
   return <div className='ca-result'>
@@ -49,7 +49,7 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
  const [openJob,setOpenJob]=useState<string|null>(null);
  const activeProcess=useMemo(()=>records.find(r=>String(r.process)===processNo.trim()),[records,processNo]);
  const newest=workers[0]||null;
- const online=Boolean(newest&&Date.now()-new Date(newest.last_seen_at).getTime()<20*60000);
+ const online=Boolean(newest&&Date.now()-new Date(newest.last_seen_at).getTime()<100*60000);
  const running=jobs.filter(j=>j.status==='running').length;
  const queued=jobs.filter(j=>j.status==='queued').length;
  const refresh=useCallback(async()=>{
@@ -75,7 +75,7 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
    const row=await cloudJobsApi.queue(activeProcess,type);
    setJobs(old=>[row,...old]);
    setOpenJob(row.id);setExpanded(true);
-   setNotice(jobName(type)+' queued for Process '+activeProcess.process+'. '+(online?'Cloud Run will pick this up on its next scheduled execution.':'Cloud Run is not connected yet; the request will wait safely in Supabase.'));
+   setNotice(jobName(type)+' queued for Process '+activeProcess.process+'. '+(online?'The free GitHub Actions worker can pick this up at its next scheduled run.':'The free scheduled worker is not connected yet; your request will wait safely in Supabase.'));
   }catch(e:any){setError(e?.message||'Unable to queue job.')}
   finally{setBusy(false)}
  }
@@ -83,7 +83,7 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
   <div className='ca-head'>
    <div className='ca-head-icon'><Cloud size={21}/></div>
    <div className='ca-head-text'>
-    <div className='ca-eyebrow'>GOOGLE CLOUD RUN + SUPABASE</div>
+    <div className='ca-eyebrow'>GITHUB ACTIONS + SUPABASE · FREE FIRST</div>
     <h2>Cloud Automation <span className='ca-label'>PC-independent</span></h2>
     <p>Queue safe background work from your phone. Processes and private PDFs stay in Supabase; results return here automatically.</p>
    </div>
@@ -93,12 +93,13 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
   </div>
   <div className='ca-overview'>
    <span className={'ca-indicator '+(online?'connected':'disconnected')}>{online?<Activity size={14}/>:<CloudOff size={14}/>}
-    {online?'Cloud worker recently active':'Cloud Run connection pending'}
+    {online?'Free Python worker recently ran':'Free worker setup needed'}
    </span>
    <span>{queued} queued</span><span>{running} processing</span><span>{jobs.filter(j=>j.status==='completed').length} completed</span>
    <button type='button' disabled={loading} onClick={()=>void refresh()} title='Refresh cloud jobs'><RefreshCw size={14}/></button>
   </div>
   {expanded&&<div className='ca-expanded'>
+   {!online&&<div className='ca-safety'><ShieldCheck size={15}/><span>The free Python runner is prepared, but cannot execute until GitHub Actions is enabled and a private Supabase backend secret is configured. No Google Cloud billing is needed. <a href="https://github.com/pjsspare098-svg/PJS-OPRATION-MANAGEMENT/blob/main/docs/FREE_PYTHON_AUTOMATION_SETUP.md" target="_blank" rel="noopener noreferrer">View free setup guide</a></span></div>}
    <div className='ca-form'>
     <div><strong>Start a cloud job</strong><small>Choose an existing Process No. No DataDoc or email action will be executed.</small></div>
     <label>Process No.<input value={processNo} inputMode='numeric' maxLength={9} placeholder='e.g. 292168'
@@ -113,7 +114,7 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
    </div>
    {notice&&<p className='ca-notice' role='status'>{notice}</p>}
    {error&&<p className='ca-error' role='alert'>{error}</p>}
-   <div className='ca-joblist-head'><strong>Recent background jobs</strong><small>{online?'Cloud Run was seen '+time(newest!.last_seen_at):'No recent Cloud Run heartbeat · deployment required'}</small></div>
+   <div className='ca-joblist-head'><strong>Recent background jobs</strong><small>{online?'Worker last ran '+time(newest!.last_seen_at):'No recent free-worker execution · setup required'}</small></div>
    {jobs.length?jobs.slice(0,12).map(job=><div key={job.id} className='ca-job'>
     <button className='ca-job-summary' onClick={()=>setOpenJob(openJob===job.id?null:job.id)} aria-expanded={openJob===job.id}>
      <div className='ca-job-type'><FileText size={15}/><div><strong>{jobName(job.job_type)} · {job.process_no}</strong><small>{time(job.created_at)} {job.worker_name?'· '+job.worker_name:''}</small></div></div>
@@ -122,7 +123,7 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
     </button>
     {openJob===job.id&&<Result job={job}/>}
    </div>):<div className='ca-empty'>No cloud jobs yet. Select a saved Process No. above to prepare a read-only audit.</div>}
-   <div className='ca-safety'><ShieldCheck size={15}/><span>Cloud automation does not depend on your office PC. DataDoc access at the private office address remains in the separate Windows queue until a secure cloud connection is established. Cloud PDF extraction is for review, not automatic field replacement.</span></div>
+   <div className='ca-safety'><ShieldCheck size={15}/><span>This scheduled GitHub-hosted Python worker does not need your office PC. DataDoc access at the private office address remains in the separate Windows queue until a secure cloud connection is established. Cloud PDF extraction is for review, not automatic field replacement.</span></div>
   </div>}
  </section>;
 }
