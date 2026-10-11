@@ -1,0 +1,27 @@
+name: Verify PJS Cloud Python Worker
+on:
+  push:
+    branches: [main]
+    paths:
+      - "cloud-worker/**"
+      - ".github/workflows/cloud-worker-test.yml"
+  pull_request:
+    paths:
+      - "cloud-worker/**"
+      - ".github/workflows/cloud-worker-test.yml"
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python modules
+        working-directory: cloud-worker
+        run: python -m compileall -q analysis.py main.py test_analysis.py
+      - name: Test read-only audit and extraction without any secrets
+        working-directory: cloud-worker
+        run: python -m unittest -v test_analysis.py
