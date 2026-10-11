@@ -1,8 +1,10 @@
-"""PJS OMS PC-free Cloud Run Job worker.
+"""PJS OMS PC-free Python worker.
 
-Run by Cloud Scheduler. Claims approved READ-ONLY jobs in the separate
-oms_cloud_jobs queue. Never invokes DataDoc, Outlook or carrier submissions.
-Secrets are injected from Google Secret Manager at execution time.
+Runs on scheduled GitHub Actions standard Ubuntu runners (free-first), or an
+optional future Cloud Run Job. Claims only READ-ONLY process audit/PDF jobs from
+oms_cloud_jobs. Never invokes DataDoc, Outlook or carrier submissions.
+A privileged database credential must be injected from the host's secret store;
+the worker must never be called from a public browser with that credential.
 """
 from __future__ import annotations
 
@@ -38,7 +40,7 @@ def environment():
     if url != EXPECTED_SUPABASE:
         raise RuntimeError("Cloud worker refuses unknown Supabase project")
     if not token:
-        raise RuntimeError("SUPABASE_SECRET_KEY must come from Secret Manager")
+        raise RuntimeError("SUPABASE_SECRET_KEY missing from private worker environment secret")
     if not 3 <= len(NAME) <= 80 or not re.fullmatch(r"[A-Za-z0-9_-]+",NAME):
         raise RuntimeError("Invalid cloud worker name")
     return url,token
@@ -166,7 +168,7 @@ def main()->int:
         db=create_client(url,key)
         heartbeat(db,"idle",details="Ready for read-only cloud jobs")
     except Exception:
-        log.exception("Cloud worker startup failed; verify the Google Secret Manager connection")
+        log.exception("Cloud worker startup failed; check private runner credentials and independent database access")
         return 2
     attempts=0
     errors=0
