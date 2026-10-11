@@ -47,7 +47,6 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
  const [notice,setNotice]=useState('');
  const [expanded,setExpanded]=useState(false);
  const [openJob,setOpenJob]=useState<string|null>(null);
- useEffect(()=>{if(authenticated&&refreshKey>0)void refresh()},[authenticated,refreshKey]);
  const activeProcess=useMemo(()=>records.find(r=>String(r.process)===processNo.trim()),[records,processNo]);
  const newest=workers[0]||null;
  const online=Boolean(newest&&Date.now()-new Date(newest.last_seen_at).getTime()<20*60000);
@@ -68,6 +67,7 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
   const timer=setInterval(()=>void refresh(),45000);
   return()=>clearInterval(timer);
  },[refresh,authenticated]);
+ useEffect(()=>{if(authenticated&&refreshKey>0)void refresh()},[authenticated,refreshKey,refresh]);
  async function queueJob(type:CloudJobType){
   if(!activeProcess)return;
   setBusy(true);setError('');setNotice('');
