@@ -33,4 +33,13 @@ assert.equal(extractProcessNumber('Process 000000'), null);
 assert.equal(parseReminderMoment('in 30 minutes',now)?.toISOString(),new Date(now.getTime()+1800000).toISOString());
 assert.equal(parseReminderMoment('tomorrow at 25:00',now),null);
 assert.equal(parseReminderMoment('today at 8am',now),null);
+
+assert.deepEqual(parseCommand('audit process 292168'),{kind:'cloud_audit',processNo:'292168'});
+assert.deepEqual(parseCommand('analyze process 292168'),{kind:'cloud_audit',processNo:'292168'});
+assert.deepEqual(parseCommand('extract pdf for process 292168'),{kind:'cloud_extract',processNo:'292168'});
+assert.deepEqual(parseCommand('read documents from process 292168'),{kind:'cloud_extract',processNo:'292168'});
+assert.deepEqual(parseCommand('show cloud jobs'),{kind:'cloud_list'});
+assert.equal(parseCommand('audit process 12').kind,'ai_chat');
+console.log('PASS: 6 cloud audit, PDF processing and job-list chat commands');
+
 console.log('PASS: 22 PJS chat commands, date parsing and safe workflow confirmations');
