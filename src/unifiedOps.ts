@@ -54,11 +54,12 @@ export const ops={
     const u=await currentUser();
     if(!r.id||!r.process)throw Error('Save this process first.');
     if(existing.some(j=>j.process_id===r.id&&j.job_type===type&&['queued','running'].includes(j.status)))throw Error('A '+type.replaceAll('_',' ')+' job is already queued for '+r.process);
+    if(type==='bill_submit'&&existing.some(j=>j.process_id===r.id&&j.job_type==='bill_submit'&&j.status==='completed'))throw Error('DataDoc bill was already submitted for this process. Verify DataDoc instead of creating a duplicate.');
     const verification=checkJob(r,type,prefs,existing);
     if(!verification.ready)throw Error('Cannot queue '+type.replaceAll('_',' ')+'. Missing: '+verification.missing.join(', '));
-    const {data,error}=await supabase!.from('oms_jobs').insert({user_id:u.id,process_id:r.id,process_no:r.process,job_type:type,status:'queued',progress:0,payload:{process:r.process,so:r.so||'',transporter:r.transporter||'',tracking_id:r.lr||'',stage:r.stage||'Universal Process'}}).select().single();
+    const {data,error}=await supabase!.from('oms_jobs').insert({user_id:u.id,process_id:r.id,process_no:r.process,job_type:type,status:'queued',progress:0,office_execution:type==='bill_submit'?'auto_on_login':'manual',payload:{process:r.process,so:r.so||'',transporter:r.transporter||'',tracking_id:r.lr||'',stage:r.stage||'Universal Process',authorized_by:u.id,requested_at:new Date().toISOString()}}).select().single();
     if(error)throw error;
-    await ops.audit(r,'Job queued · '+type,{jobId:data.id,worker:'awaiting office worker'});
+    try{await ops.audit(r,'Job queued · '+type,{jobId:data.id,worker:type==='bill_submit'?'approved_office_auto_queue':'manual_worker_pending'});}catch(e){console.warn('Job queued successfully but activity log could not be written',e)}
     return data as Job;
   }
 };
