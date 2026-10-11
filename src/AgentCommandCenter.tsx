@@ -154,7 +154,7 @@ export default function AgentCommandCenter({
    const kind=cmd.kind==='cloud_audit'?'process_audit':'document_extract';
    const job=await cloudJobsApi.queue(record,kind);
    setCloudRefreshKey(x=>x+1);
-   return {source:'local',reply:(kind==='process_audit'?'Read-only process audit':'Read-only PDF field extraction')+' queued for Process '+job.process_no+'. This request is saved to Supabase. It will execute after Google Cloud Run is deployed and its scheduled job is active. No original records will be changed.\n\nOpen Cloud Automation to view status and results.'};
+   return {source:'local',reply:(kind==='process_audit'?'Read-only process audit':'Read-only PDF field extraction')+' queued for Process '+job.process_no+'. This request is saved to Supabase. It will run on the hourly free GitHub Actions worker once its private Supabase secret and enable switch are configured. No PC or Google Cloud billing is needed. No original records will be changed.\n\nOpen Cloud Automation to view status and results.'};
   }
   if(cmd.kind==='summarize'){
    const stages:Record<string,number>={};
