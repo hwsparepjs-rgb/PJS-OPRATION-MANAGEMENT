@@ -6,6 +6,7 @@ export type Command=
  |{kind:'list_tasks';filter:'pending'|'all'|'overdue'|'today'}
  |{kind:'complete_task';index:number}
  |{kind:'find_process';processNo:string}
+ |{kind:'move_process';processNo:string;stage:'Email to Client'|'Dispatch Tracking'}
  |{kind:'summarize'}
  |{kind:'web_search';query:string}
  |{kind:'open_site';url:string}
@@ -81,6 +82,8 @@ export function parseCommand(raw:string,now=new Date()):Command{
    ?{kind:'remind_task',title,processNo:extractProcessNumber(title),at:when.toISOString()}
    :{kind:'ask_reminder_time',title};
  }
+ const move=text.match(/^(?:please\s+)?(?:move|send|transfer)\s+process\s+(\d{5,9})\s+to\s+(email(?:\s+to\s+client)?|dispatch\s+tracking)\s*[.!]?$/i);
+ if(move&&validProcess(move[1]))return {kind:'move_process',processNo:move[1],stage:/email/i.test(move[2])?'Email to Client':'Dispatch Tracking'};
  const process=text.match(/\b(?:process|prc|process\s*no\.?)\s*(?:number|no\.?|#|:|-)?\s*(\d{5,9})\b/i);
  if(process&&validProcess(process[1])&&/^(?:find|check|show|locate|status|what|where|open|lookup|search)\b/i.test(text))return {kind:'find_process',processNo:process[1]};
  if(/(?:status|summary|overview|how many)\b/i.test(low)&&/(?:records|processes|operations|dispatch|orders|workspace)/.test(low))return {kind:'summarize'};
