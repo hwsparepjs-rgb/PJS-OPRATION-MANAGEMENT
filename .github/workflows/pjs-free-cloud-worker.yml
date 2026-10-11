@@ -1,0 +1,62 @@
+name: PJS Free Cloud Python Worker
+
+# Free-hosted option: standard Ubuntu GitHub-hosted runners.
+# Disabled by default until repository variable PJS_FREE_WORKER_ENABLED=true.
+on:
+  schedule:
+    # Every hour, away from the hour boundary to reduce GitHub congestion.
+    # Schedule delivery is best-effort and can be delayed.
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pjs-free-cloud-worker
+  cancel-in-progress: false
+
+jobs:
+  process_approved_read_only_jobs:
+    if: ${{ vars.PJS_FREE_WORKER_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-cloud-readonly
+    env:
+      SUPABASE_URL: https://tbkytdktututiyeoqkwa.supabase.co
+      SUPABASE_SECRET_KEY: ${{ secrets.PJS_OMS_SUPABASE_WORKER_KEY }}
+      PJS_CLOUD_WORKER_NAME: pjs-free-python
+      PJS_MAX_JOBS: "6"
+    defaults:
+      run:
+        shell: bash
+        working-directory: cloud-worker
+    steps:
+      - name: Checkout approved production branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check backend credentials are configured
+        run: |
+          if [ -z "$SUPABASE_SECRET_KEY" ]; then
+            echo "::error::Set the PJS_OMS_SUPABASE_WORKER_KEY secret in the production-cloud-readonly environment before enabling this worker."
+            exit 1
+          fi
+      - name: Install PDF OCR engine (only if unavailable)
+        run: |
+          if ! command -v tesseract >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq --no-install-recommends tesseract-ocr
+          fi
+      - name: Install Python dependencies
+        run: python -m pip install -q -r requirements.txt
+      - name: Verify read-only code
+        run: |
+          python -m compileall -q analysis.py main.py
+          python -m unittest -q test_analysis.py
+      - name: Run bounded PJS automation queue
+        run: python main.py
