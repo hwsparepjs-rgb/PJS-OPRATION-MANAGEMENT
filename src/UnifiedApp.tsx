@@ -194,7 +194,7 @@ export default function UnifiedApp(){
  }
  async function onQueue(r:any,type:JobType){
   if(!authenticated){onNotice('Automation jobs require an authenticated cloud account. Local workspace cannot run or queue jobs.');return}
-  setBusy(true);try{await ops.queue(r,type,jobs,settings);await refresh();onNotice('Job queued. Python worker not yet connected; no DataDoc, courier or Outlook action has run.')}
+  setBusy(true);try{await ops.queue(r,type,jobs,settings);await refresh();onNotice(type==='bill_submit'?'Approved DataDoc Bill Submit queued for the Windows office worker. It will wait until the office PC worker is running and live execution is enabled.': 'Job queued. Its separate office adapter is not connected yet; no external action has run.')}
   catch(e:any){setError(e?.message||'Unable to queue request.')}finally{setBusy(false)}
  }
  function onDraftEmail(r:any){
