@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run test:pick-slip && npm run test:done-pick && npm run test:migration && npm run test:business && npm run test:lr && npm run test:excel && npm run test:document-fields && npm run test:done-pick-albums && npm run test:document-merge && vite build",
+    "build": "npm run test:pick-slip && npm run test:done-pick && npm run test:migration && npm run test:business && npm run test:lr && npm run test:excel && npm run test:document-fields && npm run test:done-pick-albums && npm run test:document-merge && npm run test:agent && vite build",
     "preview": "vite preview",
     "test:done-pick": "node --experimental-strip-types tests/donePickReader.test.mjs",
     "test:pick-slip": "node --experimental-strip-types tests/pickSlipReader.test.mjs",
@@ -15,7 +15,8 @@
     "test:excel": "node --experimental-strip-types tests/excelReport.test.mjs",
     "test:document-fields": "node --experimental-strip-types tests/documentFields.test.mjs",
     "test:done-pick-albums": "node --experimental-strip-types tests/donePickAlbumRules.test.mjs",
-    "test:document-merge": "node --experimental-strip-types tests/documentMerge.test.mjs"
+    "test:document-merge": "node --experimental-strip-types tests/documentMerge.test.mjs",
+    "test:agent": "node --experimental-strip-types tests/agentCommands.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.469.0",
