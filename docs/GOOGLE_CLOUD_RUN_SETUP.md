@@ -62,7 +62,7 @@ gcloud secrets add-iam-policy-binding pjs-oms-supabase-secret \
 In Cloud Shell:
 
 \`\`\`bash
-git clone https://github.com/pjsspare098-svg/PJS-OPRATION-MANAGEMENT.git
+git clone https://github.com/hwsparepjs-rgb/PJS-OPRATION-MANAGEMENT.git
 cd PJS-OPRATION-MANAGEMENT
 gcloud artifacts repositories create pjs-oms-workers \
   --repository-format=docker --location="$REGION" \
