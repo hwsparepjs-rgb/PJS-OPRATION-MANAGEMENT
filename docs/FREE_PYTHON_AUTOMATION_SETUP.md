@@ -8,7 +8,7 @@
 
 Google Cloud Run, Google billing, Secret Manager, and Cloud Scheduler **are not required** to start this option. Do not enter payment information simply for this worker.
 
-The PJS repository currently is **PUBLIC**, so ordinary standard GitHub-hosted Actions runtime is free according to GitHub's billing docs. Public code is visible to everyone, but properly configured GitHub environment secrets are not publicly readable. Do NOT commit real customer PDFs, credentials, .env files or database exports. For private production code, consider switching the repository to **PRIVATE**: GitHub Free includes 2,000 standard Linux minutes per month, which can be exhausted. To avoid unintended payment on private repositories, set a strict Actions spending budget with **Stop usage when budget limit is reached** (and never attach billing if you do not want charges).
+The new `hwsparepjs-rgb/PJS-OPRATION-MANAGEMENT` repository is currently **PUBLIC**, so ordinary standard GitHub-hosted Actions runtime is free according to GitHub's billing docs. Public code is visible to everyone, but properly configured GitHub environment secrets are not publicly readable. Do NOT commit real customer PDFs, credentials, .env files or database exports. For private production code, consider switching the repository to **PRIVATE**: GitHub Free includes 2,000 standard Linux minutes per month, which can be exhausted. To avoid unintended payment on private repositories, set a strict Actions spending budget with **Stop usage when budget limit is reached** (and never attach billing if you do not want charges).
 
 ## What's ready, but OFF until you enable it
 
@@ -26,7 +26,7 @@ The PJS repository currently is **PUBLIC**, so ordinary standard GitHub-hosted A
 
 ### 1. Create a dedicated GitHub environment
 
-1. Open: https://github.com/pjsspare098-svg/PJS-OPRATION-MANAGEMENT/settings/environments
+1. Open: https://github.com/hwsparepjs-rgb/PJS-OPRATION-MANAGEMENT/settings/environments
 2. Choose **New environment**, enter exactly `production-cloud-readonly`, and click Configure environment.
 3. Under **Environment secrets**, choose **Add secret**.
 4. **Name:** `PJS_OMS_SUPABASE_WORKER_KEY`
@@ -37,7 +37,7 @@ GitHub Actions alone can read the environment secret when the scheduled job runs
 
 ### 2. Enable the free scheduler
 
-1. Open https://github.com/pjsspare098-svg/PJS-OPRATION-MANAGEMENT/settings/variables/actions
+1. Open https://github.com/hwsparepjs-rgb/PJS-OPRATION-MANAGEMENT/settings/variables/actions
 2. Add **New repository variable**:
    - Name: `PJS_FREE_WORKER_ENABLED`
    - Value: `true`
@@ -49,7 +49,7 @@ GitHub Actions alone can read the environment secret when the scheduled job runs
 2. Sign in, then open **AI Command Center → Cloud Automation**.
 3. Enter the Process No. for one saved test record and select **Run process audit**. Or type `audit process 292168` in the chat if that process belongs to your account.
 4. Open the GitHub **Actions** tab:
-   https://github.com/pjsspare098-svg/PJS-OPRATION-MANAGEMENT/actions/workflows/pjs-free-cloud-worker.yml
+   https://github.com/hwsparepjs-rgb/PJS-OPRATION-MANAGEMENT/actions/workflows/pjs-free-cloud-worker.yml
 5. Select **PJS Free Cloud Python Worker → Run workflow → Run workflow** to trigger a manual test immediately (or wait for the next hourly run).
 6. Review the GitHub workflow run log without exposing credentials and check that the job finished successfully.
 7. Refresh PJS **Cloud Automation**. The job should show **Completed** with read-only findings, and an in-app notification should appear.
@@ -80,6 +80,6 @@ If the Actions tab says **Enable workflows**, enable GitHub Actions in repositor
 
 **Security boundaries:** The free cloud worker runs only `process_audit` and `document_extract` jobs. It cannot be triggered to send client emails or submit DataDoc bills. It only reads PDF documents from the existing private Supabase Storage and writes the derived review results to the private job record and notifications.
 
-**No cloud host or GitHub credential has been connected by committing these files.** Production execution starts only after the owner configures the GitHub secret, enables the variable and verifies one test.
+**The worker is present in the new GitHub repository, but the scheduler has not been activated.** Production execution starts only after the owner configures the GitHub secret, enables the variable and verifies one test.
 
 Official reference: https://docs.github.com/en/billing/concepts/product-billing/github-actions
