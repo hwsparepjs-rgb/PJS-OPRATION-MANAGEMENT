@@ -99,7 +99,7 @@ export default function CloudAutomationPanel({records,authenticated,refreshKey=0
    <button type='button' disabled={loading} onClick={()=>void refresh()} title='Refresh cloud jobs'><RefreshCw size={14}/></button>
   </div>
   {expanded&&<div className='ca-expanded'>
-   {!online&&<div className='ca-safety'><ShieldCheck size={15}/><span>The free Python runner is prepared, but cannot execute until GitHub Actions is enabled and a private Supabase backend secret is configured. No Google Cloud billing is needed. <a href="https://github.com/pjsspare098-svg/PJS-OPRATION-MANAGEMENT/blob/main/docs/FREE_PYTHON_AUTOMATION_SETUP.md" target="_blank" rel="noopener noreferrer">View free setup guide</a></span></div>}
+   {!online&&<div className='ca-safety'><ShieldCheck size={15}/><span>The free Python runner is prepared, but cannot execute until GitHub Actions is enabled and a private Supabase backend secret is configured. No Google Cloud billing is needed. <a href="https://github.com/hwsparepjs-rgb/PJS-OPRATION-MANAGEMENT/blob/main/docs/FREE_PYTHON_AUTOMATION_SETUP.md" target="_blank" rel="noopener noreferrer">View free setup guide</a></span></div>}
    <div className='ca-form'>
     <div><strong>Start a cloud job</strong><small>Choose an existing Process No. No DataDoc or email action will be executed.</small></div>
     <label>Process No.<input value={processNo} inputMode='numeric' maxLength={9} placeholder='e.g. 292168'
